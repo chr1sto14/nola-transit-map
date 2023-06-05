@@ -64,8 +64,19 @@ const RotatedMarker = forwardRef(({ children, ...props }, forwardRef) => {
 });
 
 function timestampDisplay (ts) {
-    const timestamp = `${ts.slice(0,4)}-${ts.slice(4,6)}-${ts.slice(6,8)}T${ts.slice(9,14)}:${ts.slice(15,18)}`;
-    const relativeTimestamp = new Date() - new Date(timestamp);
+    const timestamp = Date.UTC(
+		ts.slice(0,4),
+		ts.slice(4,6)-1,
+		ts.slice(6,8),
+		ts.slice(9,11),
+		ts.slice(12,14),
+		ts.slice(15,17),
+	);
+    const now = new Date()
+    const utcDate = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }));
+    const nolaDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Chicago' }));
+    const offset = utcDate.getTime() - nolaDate.getTime();
+    const relativeTimestamp = utcDate.getTime() - timestamp - offset;
     if (relativeTimestamp < 60000) {
       // round to the nearest 5th second so we don't retrigger draw too much
       const seconds = Math.ceil(Math.round(relativeTimestamp / 1000) / 5) * 5;
